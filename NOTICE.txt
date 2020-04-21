@@ -1,21 +1,11 @@
-Marketplace Web Service Products Java Library
+Marketplace Web Service Products Java Library, 
+FBA Inventory Service MWS Java Library, 
+Marketplace Web Service Java Library 
+
 Copyright 2017 Amazon Technologies, Inc
 
 This product includes software developed by
 Amazon Technologies, Inc (http://www.amazon.com/).
 
 
-FBA Inventory Service MWS Java Library
-Copyright 2016 Amazon Technologies, Inc
-
-This product includes software developed by
-Amazon Technologies, Inc (http://www.amazon.com/).
-
-
-
-Marketplace Web Service Java Library
-Copyright 2009 Amazon Technologies, Inc
-
-This product includes software developed by
-Amazon Technologies, Inc (http://www.amazon.com/).
 
