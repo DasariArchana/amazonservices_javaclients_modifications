@@ -248,7 +248,7 @@ public class MarketplaceWebServiceClient implements MarketplaceWebService {
 
 					@Override
 					public boolean offer(Runnable task) {
-						log.debug("Maximum number of concurrent threads reached, queuing task...");
+						log.warn("Maximum number of concurrent threads reached, queuing task...");
 						return super.offer(task);
 					}
 				}, new ThreadFactory() {
@@ -262,13 +262,13 @@ public class MarketplaceWebServiceClient implements MarketplaceWebService {
 						if (thread.getPriority() != Thread.NORM_PRIORITY) {
 							thread.setPriority(Thread.NORM_PRIORITY);
 						}
-						log.debug("ThreadFactory created new thread: " + thread.getName());
+						log.warn("ThreadFactory created new thread: " + thread.getName());
 						return thread;
 					}
 				}, new RejectedExecutionHandler() {
 
 					public void rejectedExecution(Runnable task, ThreadPoolExecutor executor) {
-						log.debug("Maximum number of concurrent threads reached, and queue is full. "
+						log.warn("Maximum number of concurrent threads reached, and queue is full. "
 								+ "Running task in the calling thread..." + Thread.currentThread().getName());
 						if (!executor.isShutdown()) {
 							task.run();
@@ -2034,16 +2034,16 @@ public class MarketplaceWebServiceClient implements MarketplaceWebService {
 
 			} else {
 				method = new HttpPost(config.getServiceURL());
-				log.debug("Adding required parameters...");
+				log.warn("Adding required parameters...");
 				addRequiredParametersToRequest(method, parameters);
 
 				/* Set content type and encoding */
-				log.debug("Setting content-type to application/x-www-form-urlencoded; charset="
+				log.warn("Setting content-type to application/x-www-form-urlencoded; charset="
 						+ DEFAULT_ENCODING.toLowerCase());
 				method.addHeader(new BasicHeader("Content-Type",
 						"application/x-www-form-urlencoded; charset=" + DEFAULT_ENCODING.toLowerCase()));
 
-				log.debug("Done adding additional required parameters. Parameters now: " + parameters);
+				log.warn("Done adding additional required parameters. Parameters now: " + parameters);
 			}
 
 			for (Header head : defaultHeaders) {
@@ -2056,12 +2056,12 @@ public class MarketplaceWebServiceClient implements MarketplaceWebService {
 
 		int status = -1;
 
-		log.debug("Invoking" + actionName + " request. Current parameters: " + parameters);
+		log.warn("Invoking" + actionName + " request. Current parameters: " + parameters);
 		try {
 			boolean shouldRetry = true;
 			int retries = 0;
 			do {
-				log.debug("Sending Request to host:  " + config.getServiceURL());
+				log.warn("Sending Request to host:  " + config.getServiceURL());
 
 				try {
 
@@ -2089,15 +2089,15 @@ public class MarketplaceWebServiceClient implements MarketplaceWebService {
 					 */
 					if (status == HttpStatus.SC_OK && responseBodyString != null) {
 						shouldRetry = false;
-						log.debug(
+						log.warn(
 								"Received Response. Status: " + status + ". " + "Response Body: " + responseBodyString);
 
-						log.debug("Attempting to unmarshal into the " + actionName + "Response type...");
+						log.warn("Attempting to unmarshal into the " + actionName + "Response type...");
 						response = clazz.cast(
 								getUnmarshaller().unmarshal(new StreamSource(new StringReader(responseBodyString))));
 						responseHeaderMetadataSetter.invoke(response, responseHeaderMetadata);
 
-						log.debug("Unmarshalled response into " + actionName + "Response type.");
+						log.warn("Unmarshalled response into " + actionName + "Response type.");
 
 					} else if (status == HttpStatus.SC_OK && isStreamingResponse) {
 
@@ -2162,7 +2162,7 @@ public class MarketplaceWebServiceClient implements MarketplaceWebService {
 						}
 
 						shouldRetry = false;
-						log.debug("Received streaming response.");
+						log.warn("Received streaming response.");
 
 					} else { /* Unsucessful response. Attempting to unmarshall into ErrorResponse type */
 
@@ -2171,17 +2171,17 @@ public class MarketplaceWebServiceClient implements MarketplaceWebService {
 							responseBodyString = getResponsBodyAsString(postResponse.getEntity().getContent());
 						}
 
-						log.debug("Received Response. Status: " + status + ".");
+						log.warn("Received Response. Status: " + status + ".");
 
 						if (status == HttpStatus.SC_INTERNAL_SERVER_ERROR && !(request instanceof SubmitFeedRequest)
 								&& pauseIfRetryNeeded(++retries)) {
 							shouldRetry = true;
 						} else {
-							log.debug("Attempting to unmarshal into the ErrorResponse type...");
+							log.warn("Attempting to unmarshal into the ErrorResponse type...");
 							ErrorResponse errorResponse = (ErrorResponse) getUnmarshaller()
 									.unmarshal(new StreamSource(new StringReader(responseBodyString)));
 
-							log.debug("Unmarshalled response into the ErrorResponse type.");
+							log.warn("Unmarshalled response into the ErrorResponse type.");
 
 							com.amazonaws.mws.model.Error error = errorResponse.getError().get(0);
 
@@ -2206,8 +2206,8 @@ public class MarketplaceWebServiceClient implements MarketplaceWebService {
 					 * types. Checking for other possible errors.
 					 */
 
-					log.debug("Caught JAXBException", je);
-					log.debug("Response cannot be unmarshalled neither as " + actionName
+					log.warn("Caught JAXBException", je);
+					log.warn("Response cannot be unmarshalled neither as " + actionName
 							+ "Response or ErrorResponse types." + "Checking for other possible errors.");
 
 					MarketplaceWebServiceException awse = processErrors(responseBodyString, status,
@@ -2323,7 +2323,7 @@ public class MarketplaceWebServiceClient implements MarketplaceWebService {
 	private boolean pauseIfRetryNeeded(int retries) throws InterruptedException {
 		if (retries <= config.getMaxErrorRetry()) {
 			long delay = (long) (Math.pow(4, retries) * 100L);
-			log.debug("Retriable error detected, will retry in " + delay + "ms, attempt numer: " + retries);
+			log.warn("Retriable error detected, will retry in " + delay + "ms, attempt numer: " + retries);
 			Thread.sleep(delay);
 			return true;
 		} else {
@@ -2424,7 +2424,7 @@ public class MarketplaceWebServiceClient implements MarketplaceWebService {
 		} else {
 			throw new SignatureException("Invalid Signature Version specified");
 		}
-		log.debug("Calculated string to sign: " + stringToSign);
+		log.warn("Calculated string to sign: " + stringToSign);
 		return sign(stringToSign, key, algorithm);
 	}
 
